@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Privilege Abuse</title>
+    <link href="https://classless.de/classless.css" rel="stylesheet">
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body id="home">
+
+<h1>2: Privilege Abuse</h1>
+
+<a href="https://my-location.org/">Some Map</a>
+<pre id="geolocation"></pre>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var x = document.getElementById("geolocation");
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function showPosition(position) {
+            x.innerHTML = "Latitude: " + position.coords.latitude +
+                "<br>Longitude: " + position.coords.longitude;
+        }
+
+        showPosition(getLocation())
+    })
+</script>
+</body>
+
+</html>

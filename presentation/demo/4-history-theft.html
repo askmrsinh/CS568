@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>History Theft</title>
+    <link href="https://classless.de/classless.css" rel="stylesheet">
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body id="home">
+
+<h1>4: History Theft</h1>
+
+<h2>GitHub</h2>
+<pre id="github"></pre>
+
+<h2>Amazon</h2>
+<pre id="amazon"></pre>
+
+<h2>WSJ</h2>
+<pre id="wsj"></pre>
+
+<hr>
+
+<pre id="all-cookies"></pre>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function getTldCookie(tld) {
+            var decodedCookie = eval("decodeURIComponent(document.cookie)");
+            var cookies = Object.fromEntries(decodedCookie.split(';')
+                .map(cookie => cookie.trim())
+                .map(cookie => {
+                    return [
+                        cookie.split('=')[0],
+                        cookie.split('=').slice(1).join('=')
+                    ]
+                }))
+
+            console.log("All Cookies:", cookies);
+
+            if (tld !== "") {
+                var tldCookies = Object.keys(cookies).filter(cookieKey => {
+                    console.log(cookieKey)
+                    if (cookieKey.indexOf(tld) > -1) {
+                        return true
+                    }
+                    return false
+                })
+
+                console.log("Target TLD Cookies", tldCookies)
+                return tldCookies.reduce((a, e) => (a[e] = cookies[e], a), {});
+            }
+
+            return cookies
+
+        }
+
+        document.getElementById("github").innerHTML = JSON.stringify(getTldCookie("github.com"), null, 4);
+        document.getElementById("amazon").innerHTML = JSON.stringify(getTldCookie("amazon.com"), null, 4);
+        document.getElementById("wsj").innerHTML = JSON.stringify(getTldCookie("wsj.com"), null, 4);
+        document.getElementById("all-cookies").innerHTML = JSON.stringify(getTldCookie(""), null, 4);
+    })
+</script>
+</body>
+
+</html>
