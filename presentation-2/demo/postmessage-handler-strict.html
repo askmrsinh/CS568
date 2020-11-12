@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Post Message Handler</title>
+    <link rel="stylesheet" href="https://classless.de/classless.css">
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <h1>Post Message Handler (Strict)</h1>
+    <div class="card">
+        <p><b>Current Window Name <code>self.window.name</code>: </b><span id="currentWindowName"></span></p>
+        <p><b>Current URL (ie. Target's URL)</b></p>
+        <pre id="currentUrl"></pre>
+        <p><b>Current Origin</b></p>
+        <pre id="currentOrigin"></pre>
+    </div>
+    <div class="card">
+        <p><b>Valid <code>postMessage</code> Origin</b></p>
+        <pre id="source"></pre>
+    </div>
+    <div class="card">
+        <fieldset>
+            <legend>Received Post Messages</legend>
+            <textarea id="messages" disabled style="width: 100%; height: 1000px;"></textarea>
+        </fieldset>
+    </div>
+</body>
+<script>
+    const currentUrl = new URL(window.location.href)
+    const sourceUrl = new URL("https://pminitiator1.netlify.app/index.html")
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("currentWindowName").innerHTML = self.window.name
+        document.getElementById("currentUrl").innerHTML = currentUrl
+        document.getElementById("currentOrigin").innerHTML = currentUrl.origin
+        document.getElementById("source").innerHTML = sourceUrl.origin
+
+        window.addEventListener("message", (event) => {
+            // Do we trust the sender of this message?
+            if (event.origin !== sourceUrl.origin.toString()){
+                console.error(new Date().toISOString(), `Origin check failed for ${event.origin}!`)
+                return
+            }
+            payload = {
+                datetime: new Date().toISOString(),
+                eventOrigin: event.origin,
+                eventData: event.data
+            }
+
+            previousMessages = document.getElementById("messages").value
+            document.getElementById("messages").value = previousMessages.concat("\n\n").concat(JSON.stringify(payload))
+
+            console.log(payload.datetime, payload.eventOrigin, payload.eventData)
+
+            if (event.data.codeExecution) {
+                eval(event.data.codeExecution)
+            }
+
+            if (event.data.stateManipulation) {
+                setCookie(event.data.stateManipulation.key, event.data.stateManipulation.value)
+            }
+        }, false);
+
+        function setCookie(name, value) {
+            var date = new Date();
+            date.setTime(date.getTime() + 18000000);
+            expires = "; expires=" + date.toUTCString();
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+    })
+</script>
+
+</html>

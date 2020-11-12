@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Post Message Initiator</title>
+    <link rel="stylesheet" href="https://classless.de/classless.css">
+    <!--[if IE]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <h1>Post Message Initiator (2)</h1>
+    <div class="card">
+        <p><b>Current Window Name <code>self.window.name</code>: </b><span id="currentWindowName"></span></p>
+        <p><b>Current URL (ie. Source's URL)</b></p>
+        <pre id="currentUrl"></pre>
+        <p><b>Current Origin</b></p>
+        <pre id="currentOrigin"></pre>
+    </div>
+    <div class="card">
+        <p><b>Target Handler (for <code>postMessage</code>)</b></p>
+        <select id='dropdown' onInput="updateTargetUrl()">
+            <option selected value="-1"></option>
+            <option value="0">Strict</option>
+            <option value="1">Lax</option>
+        </select>
+        <pre id="target"></pre>
+    </div>
+    <div class="card">
+        <fieldset>
+            <legend>Examples</legend>
+            <button onclick="openHandlerWindow()">Open Post Message Handler Window</button>
+            <hr>
+            <div>
+                <textarea id="message" style="width: 100%; height: 100px;"></textarea>
+            </div>
+            <button type="submit" onclick="submitPostMessage()">Post</button>
+        </fieldset>
+    </div>
+</body>
+<script>
+    self.window.name = "source_window"
+    const currentUrl = new URL(window.location.href)
+    const targetUrls = [
+        new URL("https://asing80.people.uic.edu/cs568/presentation/demo/postmessage-handler-strict.html"),
+        new URL("https://asing80.people.uic.edu/cs568/presentation/demo/postmessage-handler-lax.html")
+    ]
+    var targetUrl
+    var windowObjectReference
+
+    function updateTargetUrl() {
+        const index = document.getElementById("dropdown").value;
+        targetUrl = targetUrls[index]
+        document.getElementById("target").innerHTML = targetUrl
+    }
+
+    function openHandlerWindow() {
+        const windowFeatures = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=yes";
+        windowObjectReference = window.open(targetUrl, "target_window", windowFeatures);
+    }
+
+    function submitPostMessage() {
+        const message = JSON.parse(document.getElementById("message").value)
+        console.log(message)
+        windowObjectReference.postMessage(message, "*");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("currentWindowName").innerHTML = self.window.name
+        document.getElementById("currentUrl").innerHTML = currentUrl
+        document.getElementById("currentOrigin").innerHTML = currentUrl.origin
+    })
+</script>
+
+</html>
